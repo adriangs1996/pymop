@@ -23,10 +23,20 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="pymop.py" />
+    <Compile Include="src\modules\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\mop_shell.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="assets\" />
     <Folder Include="src\" />
+    <Folder Include="src\modules\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="assets\mop_banner.txt" />
