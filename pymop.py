@@ -1,6 +1,6 @@
 
 # Start the shell
-from src.mop_shell import MopShell
+import src.mop_shell as shell
 
 if __name__ == '__main__':
-    MopShell().cmdloop()
+    shell.MopShell().cmdloop()
