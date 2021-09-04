@@ -13,3 +13,9 @@ def clean(c):
                 dir_walk(entry.path)
 
     dir_walk(os.path.abspath("src"))
+
+@task
+def run(c):
+    import pymop
+    pymop.main()
+    clean(c)

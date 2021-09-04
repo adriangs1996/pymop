@@ -2,5 +2,8 @@
 # Start the shell
 import src.mop_shell as shell
 
-if __name__ == '__main__':
+def main():
     shell.MopShell().cmdloop()
+
+if __name__ == '__main__':
+    main()
