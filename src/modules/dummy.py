@@ -23,8 +23,8 @@ revision = """
 def run(*args, **kwargs):
     print("Running")
 
-def set(*args, **kwargs):
-    print("Setting {}".format(**kwargs))
+def set(key, value):
+    print("Setting {} = {}".format(key, value))
 
 def params():
     return SETTINGS

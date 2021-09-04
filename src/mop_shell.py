@@ -29,6 +29,7 @@ class MopShell(cmd.Cmd):
         self.modules = []
         self.current_module = None
         self._real_module = None
+        self._loaded_modules_names = []
         self.prompt = colored("puppeteer> ", "green")
 
         # Load framework resources
@@ -42,12 +43,6 @@ class MopShell(cmd.Cmd):
 
     def postcmd(self, stop, line):
         if self.current_module is not None:
-            print(
-                asciistuff.Cowsay(
-                    "Master of puppets is pulling the strings: using "
-                    + self.current_module
-                )
-            )
             self.prompt = colored(self.current_module + "> ", "red")
         else:
             self.prompt = self.prompt = colored("puppeteer> ", "green")
@@ -89,6 +84,7 @@ class MopShell(cmd.Cmd):
                 assert spec.loader is not None
                 spec.loader.exec_module(module)
                 self.modules.append(module)
+                self._loaded_modules_names.append(module.__name__)
             except:
                 pass
 
@@ -122,6 +118,12 @@ class MopShell(cmd.Cmd):
         if loaded_module is not None:
             self.current_module = module
             self._real_module = loaded_module
+            print(
+                asciistuff.Cowsay(
+                    "Master of puppets is pulling the strings: using "
+                    + self.current_module
+                )
+            )
         else:
             print("No module named {} available".format(module))
 
@@ -140,6 +142,9 @@ class MopShell(cmd.Cmd):
             self._display_module(module)
 
     def do_use(self, module: str):
+        """
+        Picks a module and mark it for use by the framework.
+        """
         if module != "":
             self._try_set_module(module)
         else:
@@ -147,9 +152,67 @@ class MopShell(cmd.Cmd):
             self.current_module = None
 
     def do_exit(self, line):
+        """
+        Exits MOP
+        """
         return True
 
     def do_shell(self, line):
+        """
+        Runs the command on the system default shell.
+        The '$' character is an alias for this command.
+        """
         os.system(line)
+
+    def do_set(self, setting: str):
+        """
+        Sets a configuration setting for the current module.
+        """
+        if self._real_module is None:
+            print("Set command depends on using a module. See 'use' for help.")
+            return
+
+        splitted_input = setting.split()
+        if len(splitted_input) < 2:
+            print("Invalid argument to split")
+        else:
+            key = splitted_input[0]
+            value = " ".join(splitted_input[1:])
+            self._real_module.set(key, value)
+
+    def do_config(self, line: str):
+        """
+        Displays the current status of the selected
+        module settings.
+        """
+        if self._real_module is None:
+            print("'config' command depends on using a module. See 'use' for help.")
+            return
+
+        settings = self._real_module.params()
+        if line != '':
+            value = settings.get(line, None)
+            if value is not None:
+                print(value)
+        else:
+            print(settings)
+
+    # endregion +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+    # region    +++++++++++++++++   Completion of commands   ++++++++++++++++++
+    def complete_modules(
+        self, text: str, line: str, begidx: int, endidx: int
+    ) -> List[str]:
+        return list(filter(lambda x: text in x, self._loaded_modules_names))
+
+    def complete_use(self, text: str, line: str, begidx: int, endidx: int) -> List[str]:
+        return list(filter(lambda x: text in x, self._loaded_modules_names))
+
+    def complete_set(self, text: str, line: str, begidx: int, endidx: int) -> List[str]:
+        if self._real_module is not None:
+            settings = self._real_module.params()
+            return (list(filter(lambda x: text in x, settings.keys())))
+        else:
+            return []
 
     # endregion +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
