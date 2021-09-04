@@ -1,6 +1,6 @@
-"""
-A dummy module for testing purpouses
-"""
+"""A dummy module for testing purpouses"""
+
+
 SETTINGS = {
     "Setting1": {
         "Required": True,
@@ -15,13 +15,11 @@ SETTINGS = {
     }
 }
 
-revision = """
-    A good testing module.
-"""
+revision = "Normal"
 
 
 def run(*args, **kwargs):
-    print("Running")
+    print("Hacking something")
 
 def set(key, value):
     print("Setting {} = {}".format(key, value))

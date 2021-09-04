@@ -1,5 +1,4 @@
 import cmd
-from importlib.abc import Loader
 import os
 import sys
 from importlib.util import module_from_spec, spec_from_file_location
@@ -24,7 +23,7 @@ class MopShell(cmd.Cmd):
             print("\t\tRunning PYMOP on Windows, autocompletion might not work")
 
         # load the banner
-        self.intro = asciistuff.Lolcat(asciistuff.Banner("   M.O.P"))
+        self.intro = asciistuff.Banner("   M.O.P")
 
         self.modules = []
         self.current_module = None
@@ -91,23 +90,24 @@ class MopShell(cmd.Cmd):
     def _display_available_modules(self):
         num_columns = 4
         modules = map(
-            lambda mod: (mod.__name__, mod.revision, mod.__doc__), self.modules
+            lambda mod: (mod.__name__, mod.revision, mod.__file__), self.modules
         )
 
-        print("{:<15} {:<80} {:<150}".format("Module", "Revision", "Description"))
-        print("-" * 80)
+        print("{:<15} {:<30} {:<50}".format("Module", "Revision", "Location").center(100))
+        print(("=" * 98).center(100))
 
         for name, rev, doc in modules:
-            print("{:<15} {:<80} {:<150}".format(name, rev, doc))
+            print("{:<15} {:<30} {:<30}".format(name, rev, doc).center(100))
+            print('-'*100)
 
     def _display_module(self, module: str):
         mod = next((x for x in self.modules if x.__name__ == module), None)
         if mod is None:
             print("No module named: {} available".format(module))
         else:
-            print("\t\t\tDescription")
-            print("-*80")
-            print(mod.__doc__)
+            print("Description".center(100))
+            print(("="*80).center(100))
+            print(mod.__doc__.ljust(10))
 
     def _try_set_module(self, module: str):
         """
@@ -193,9 +193,25 @@ class MopShell(cmd.Cmd):
         if line != '':
             value = settings.get(line, None)
             if value is not None:
-                print(value)
+                print(value["Value"])
         else:
             print(settings)
+
+    def do_run(self, line: str):
+        """
+        Executes the current loaded module
+        """
+        if self._real_module is None:
+            print("'run' command depends on using a module. See 'use' for help.")
+            return
+
+        self._real_module.run()
+
+    def do_exploit(self, line: str):
+        """
+        Alias for run
+        """
+        return self.do_run(line)
 
     # endregion +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -209,6 +225,13 @@ class MopShell(cmd.Cmd):
         return list(filter(lambda x: text in x, self._loaded_modules_names))
 
     def complete_set(self, text: str, line: str, begidx: int, endidx: int) -> List[str]:
+        if self._real_module is not None:
+            settings = self._real_module.params()
+            return (list(filter(lambda x: text in x, settings.keys())))
+        else:
+            return []
+
+    def complete_config(self, text: str, line: str, begidx: int, endidx: int) -> List[str]:
         if self._real_module is not None:
             settings = self._real_module.params()
             return (list(filter(lambda x: text in x, settings.keys())))
