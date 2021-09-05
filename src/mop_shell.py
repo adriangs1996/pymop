@@ -88,7 +88,6 @@ class MopShell(cmd.Cmd):
                 pass
 
     def _display_available_modules(self):
-        num_columns = 4
         modules = map(
             lambda mod: (mod.__name__, mod.revision, mod.__file__), self.modules
         )
