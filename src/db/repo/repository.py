@@ -29,7 +29,7 @@ class Repository:
                         getattr(self.table, key) == value
                     )
         with self.session_factory() as session:
-            result_set = session.execute(select_statement)
+            result_set = session.execute(select_statement).scalars()
         return result_set
 
     def create(self, **values):

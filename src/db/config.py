@@ -1,11 +1,10 @@
 from configparser import ConfigParser
-from typing import Type
-from sqlalchemy import MetaData
+from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Integer
+from sqlalchemy.sql.sqltypes import DateTime, Integer
 from termcolor2 import colored
 from sqlalchemy import create_engine
-from sqlalchemy.orm.decl_api import declarative_base
+from sqlalchemy.orm.decl_api import declarative_base, declared_attr
 
 
 class DatabaseConfiguration:
@@ -31,7 +30,7 @@ class DatabaseConfiguration:
         print(colored("Connecting to the PostgreSQL database", "cyan"))
         try:
             connection = create_engine(self._connection_string(), echo=True, future=True)
-            print(colored("PostgreSQL Database version:"))
+            print(colored("PostgreSQL Database version:", "cyan"))
             ver = connection.execute("SELECT version()")
             print(ver)
 
@@ -63,7 +62,12 @@ class DatabaseConfiguration:
 
 config = DatabaseConfiguration.config()
 
-Base = declarative_base()
+class Base:
+    @declared_attr
+    def __tablename__(cls):
+        return cls.__name__.lower() + "s"
 
-class Entity(Base):
     id = Column(Integer, primary_key=True)
+    created_at = Column(DateTime, default=func.now())
+
+Entity = declarative_base(cls=Base)
