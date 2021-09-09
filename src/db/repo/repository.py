@@ -7,7 +7,7 @@ from src.db.config import Entity, config
 class Repository:
     """
     Repository pattern to interact with the database backend.
-    Ensures that the passed table is created on the database.
+    Ensure that the passed table is created on the database.
     """
 
     def __init__(self, table: Type[Entity]) -> None:
