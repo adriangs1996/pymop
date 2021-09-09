@@ -148,7 +148,7 @@ class MopShell(cmd.Cmd):
             self._try_set_module(module)
         else:
             self.current_module = None
-            self.current_module = None
+            self._real_module = None
 
     def do_exit(self, line):
         """
